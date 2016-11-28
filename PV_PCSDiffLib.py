@@ -7,8 +7,13 @@
 # numer strony (użytkownika) | tytuł strony | string z daty i godziny ostatniej modyfikacji
 def getPagesListFromFile(filepath):
     import re
-    file = open(filepath, 'r')
-    file_lines = file.readlines()
+    try:
+        file = open(filepath, 'r')
+        file_lines = file.readlines()
+    except:
+        #print("Nie mogę otworzyć pliku {0}".format(filepath))
+        raise
+        return
     
     pages_list = []
     pages_count = 0
@@ -27,8 +32,8 @@ def getPagesListFromFile(filepath):
                 page_number_txt = page_number_txt[1:-1]
             page_order_no_search = re.search('\d+(?= \'\d+-)', one_line)
             page_order_no_text = page_order_no_search.group(0)
-            #print("nr porzadkowy = {0}; numer zakladki = {1}; data = {2}".format(page_order_no_text, page_number_txt, page_date_string))
             page_order_no = int(page_order_no_text)  
+            # a tytuł strony jest w następnej linijce w ".Title"
             next_line = file_lines[lines_index+1]
             page_title_search = re.search('(?<=.Title ).+(?= \d+)', next_line)
             page_title = page_title_search.group(0)
@@ -40,24 +45,27 @@ def getPagesListFromFile(filepath):
     
     return pages_list
 
-def getDifferenecesByPageOrder(pagesListA, pagesListB):
+def getDifferencesByPageOrder(pagesListA, pagesListB):
     #zwraca: [nr porzadkowy strony, nr strony A, nr strony B, tytul A, tytul B, data A, data B]
     diffs = []
+
     
-    # ustalmy ile najwiecej mamy stron
-    max_pages_count = max(len(pagesListA), len(pagesListB))
+    #ustalmy ile najwiecej mamy stron
+    try:
+        max_pages_count = max(len(pagesListA), len(pagesListB))
+    except TypeError:
+        return None
+        
     for index in range(0, max_pages_count-1):
-        if index > len(pagesListA):
+        if index >= len(pagesListA)-1:
             diffs.append([index, '', pagesListB[index][0], '', pagesListB[index][1], '', pagesListB[index][2]])
             continue
-        if index > len(pagesListB):
+        if index >= len(pagesListB)-1:
             diffs.append([index, pagesListA[index][0], '', pagesListA[index][1], '', pagesListA[index][2], ''])
             continue
-        #print("data A = {0}, data B = {1}".format(pagesListA[index][2], pagesListB[index][2]))
         if pagesListA[index] != pagesListB[index]:
-            print("roznica!")
             diffs.append([index, pagesListA[index][0], pagesListB[index][0], pagesListA[index][1], pagesListB[index][1], pagesListA[index][2], pagesListB[index][2]])
-    print("-")
+
     return diffs
 
     

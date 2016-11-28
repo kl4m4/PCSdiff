@@ -1,0 +1,1 @@
+python PCSDiff.py "Y:\\Projekty\\!Opisy aparatur\\511_Bangalore\\Schematy\\511_schem.PRO" "Y:\\Projekty\\!Opisy aparatur\\511_Bangalore\\Schematy\\511_schemt_test.PRO"
