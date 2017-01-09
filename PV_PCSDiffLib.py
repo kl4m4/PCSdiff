@@ -1,3 +1,5 @@
+import sqlite3
+
 class ProjectReader:
     def __init__(self, projectpath):
         self.projectpath = projectpath
@@ -47,35 +49,48 @@ class ProjectReader:
 class ProjectComparator:
     def __init__(self, temp_db):
         self.dbFile = temp_db
+        self.dbConn = None
         self.projectA = None
-        self.projA_tableName = "Project A"
         self.projectB = None
-        self.projB_tableName = "Project B"
+        self.compareResult = None
     def readProjects(self, projApath, projBpath):
         self.projectAreader = ProjectReader(projApath)
         self.projectAreader.getPagesListFromFile()
         self.projectBreader = ProjectReader(projBpath)
         self.projectBreader.getPagesListFromFile()
         
-        import sqlite3
-        conn = sqlite3.connect(self.dbFile)
-        c = conn.cursor()
-        createstring = "CREATE TABLE '{0}'(number text, title text, lastmod text)".format(self.projA_tableName)
+        self.dbConn = sqlite3.connect(self.dbFile)
+        c = self.dbConn.cursor()
+        createstring = "CREATE TABLE 'Project A'(number text, title text, lastmod text)"
         c.execute(createstring)
-        createstring = "CREATE TABLE '{0}'(number text, title text, lastmod text)".format(self.projB_tableName)
+        createstring = "CREATE TABLE 'Project B'(number text, title text, lastmod text)"
         c.execute(createstring)
         
         for line in self.projectAreader.pages_list:
-            insertstring = "INSERT INTO '{0}' VALUES ('{1}', '{2}', '{3}')".format(self.projA_tableName, line[0], line[1], line[2])
+            insertstring = "INSERT INTO 'Project A' VALUES ('{0}', '{1}', '{2}')".format(line[0], line[1], line[2])
             c.execute(insertstring)
-        conn.commit()
+        self.dbConn.commit()
         
         for line in self.projectBreader.pages_list:
-            insertstring = "INSERT INTO '{0}' VALUES ('{1}', '{2}', '{3}')".format(self.projB_tableName, line[0], line[1], line[2])
+            insertstring = "INSERT INTO 'Project B' VALUES ('{0}', '{1}', '{2}')".format(line[0], line[1], line[2])
             c.execute(insertstring)
-        conn.commit()
-    
-
+        self.dbConn.commit()
+        
+    def compare(self):
+        queryString = "SELECT * FROM (SELECT 'Project A'.number as numA, 'Project A'.title as titleA, 'Project A'.lastmod as dateA, 'Project B'.number as numB, 'Project B'.title as titleB, 'Project B'.lastmod as dateB FROM 'Project A' LEFT OUTER JOIN 'Project B' ON 'Project A'.title = 'Project B'.title WHERE dateA <> dateB OR dateA IS NULL OR dateB IS NULL UNION SELECT 'Project A'.number as numA, 'Project A'.title as titleA, 'Project A'.lastmod as dateA, 'Project B'.number as numB, 'Project B'.title as titleB, 'Project B'.lastmod as dateB FROM 'Project B' LEFT OUTER JOIN 'Project A' ON 'Project A'.title = 'Project B'.title WHERE dateA <> dateB OR dateA IS NULL OR dateB IS NULL) ORDER BY numA ASC"
+        c = self.dbConn.cursor()
+        try:
+            self.compareResult = c.execute(queryString)
+        except:
+            raise
+            return
+        
+    def printDiff(self):
+        print("Project A: {0}".format(self.projectAreader.projectpath))
+        print("Project B: {0}\n".format(self.projectBreader.projectpath))
+        for line in self.compareResult:
+            print(line)
+	
 #filepath = 'Y:\\Projekty\\!Opisy aparatur\\511_Bangalore\\Schematy\\511_schem.PRO'
 
 # getPagesListFromFile

@@ -1,7 +1,8 @@
 import PV_PCSDiffLib
-comparator = PV_PCSDiffLib.ProjectComparator('test.sqlite')
+comparator = PV_PCSDiffLib.ProjectComparator(':memory:')
 comparator.readProjects('C:\\Users\\m.karabela\\Desktop\\pcs_diff\\schemat_test_1.PRO','C:\\Users\\m.karabela\\Desktop\\pcs_diff\\schemat_test_2.PRO')
-
+comparator.compare()
+comparator.printDiff()
 
 # reader1 = PV_PCSDiffLib.ProjectReader('Y:\\Projekty\\!Opisy aparatur\\511_Bangalore\\Schematy\\511_schem.PRO')
 # reader1.getPagesListFromFile()
