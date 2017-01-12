@@ -79,7 +79,7 @@ class ProjectComparator:
         self.dbConn.commit()
         
     def compare(self):
-        queryString = "SELECT * FROM (SELECT 'Project A'.number as numA, 'Project A'.title as titleA, 'Project A'.lastmod as dateA, 'Project B'.number as numB, 'Project B'.title as titleB, 'Project B'.lastmod as dateB FROM 'Project A' LEFT OUTER JOIN 'Project B' ON 'Project A'.title = 'Project B'.title WHERE dateA <> dateB OR dateA IS NULL OR dateB IS NULL UNION SELECT 'Project A'.number as numA, 'Project A'.title as titleA, 'Project A'.lastmod as dateA, 'Project B'.number as numB, 'Project B'.title as titleB, 'Project B'.lastmod as dateB FROM 'Project B' LEFT OUTER JOIN 'Project A' ON 'Project A'.title = 'Project B'.title WHERE dateA <> dateB OR dateA IS NULL OR dateB IS NULL) ORDER BY numA ASC"
+        queryString = "SELECT * FROM (SELECT 'Project A'.number as numA, 'Project A'.title as titleA, 'Project A'.lastmod as dateA, 'Project B'.number as numB, 'Project B'.title as titleB, 'Project B'.lastmod as dateB FROM 'Project A' LEFT OUTER JOIN 'Project B' ON 'Project A'.number = 'Project B'.number WHERE dateA <> dateB OR dateA IS NULL OR dateB IS NULL UNION SELECT 'Project A'.number as numA, 'Project A'.title as titleA, 'Project A'.lastmod as dateA, 'Project B'.number as numB, 'Project B'.title as titleB, 'Project B'.lastmod as dateB FROM 'Project B' LEFT OUTER JOIN 'Project A' ON 'Project A'.number = 'Project B'.number WHERE dateA <> dateB OR dateA IS NULL OR dateB IS NULL) ORDER BY numA ASC"
         c = self.dbConn.cursor()
         try:
             self.compareResult = c.execute(queryString)

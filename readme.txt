@@ -23,3 +23,19 @@ WHERE dateA <> dateB OR dateA IS NULL OR dateB IS NULL
 ORDER BY numA ASC
 
 Pozostaje problem z sortowaniem, bo nie dzia³a
+
+
+Raczej JOIN powinien ³¹czyæ po .number, bo numery stron s¹ naprawdê unikalne, a nie tytu³y:
+
+SELECT * FROM (
+SELECT 'Project A'.number as numA, 'Project A'.title as titleA, 'Project A'.lastmod as dateA, 'Project B'.number as numB, 'Project B'.title as titleB, 'Project B'.lastmod as dateB 
+FROM 'Project A' LEFT OUTER JOIN 'Project B' 
+ON 'Project A'.number = 'Project B'.number
+WHERE dateA <> dateB OR dateA IS NULL OR dateB IS NULL
+UNION
+SELECT 'Project A'.number as numA, 'Project A'.title as titleA, 'Project A'.lastmod as dateA, 'Project B'.number as numB, 'Project B'.title as titleB, 'Project B'.lastmod as dateB 
+FROM 'Project B' LEFT OUTER JOIN 'Project A' 
+ON 'Project A'.number = 'Project B'.number 
+WHERE dateA <> dateB OR dateA IS NULL OR dateB IS NULL
+)
+ORDER BY numA ASC
