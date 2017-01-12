@@ -47,12 +47,14 @@ class ProjectReader:
         file.close()
         
 class ProjectComparator:
-    def __init__(self, temp_db):
-        self.dbFile = temp_db
+    def __init__(self, temp_db_file):
+        self.dbFile = temp_db_file
         self.dbConn = None
         self.projectA = None
         self.projectB = None
         self.compareResult = None
+    def ___del___(self):
+        self.dbConn.close()
     def readProjects(self, projApath, projBpath):
         self.projectAreader = ProjectReader(projApath)
         self.projectAreader.getPagesListFromFile()
@@ -86,8 +88,8 @@ class ProjectComparator:
             return
         
     def printDiff(self):
-        print("Project A: {0}".format(self.projectAreader.projectpath))
-        print("Project B: {0}\n".format(self.projectBreader.projectpath))
+        #print("Project A: {0}".format(self.projectAreader.projectpath))
+        #print("Project B: {0}\n".format(self.projectBreader.projectpath))
         for line in self.compareResult:
             print(line)
 	
