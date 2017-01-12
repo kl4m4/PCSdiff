@@ -1,4 +1,5 @@
 import sqlite3
+#import terminaltables
 
 class ProjectReader:
     def __init__(self, projectpath):
@@ -87,6 +88,15 @@ class ProjectComparator:
             raise
             return
         
+    def prettyPrint(self):
+        print("Projekt A: {0}\nProjekt B: {1}".format(self.projectAreader.projectpath, self.projectBreader.projectpath))
+        print("Zmiany:")
+        print("{0:>7} {1:>7} {2:<70} {3:<20}".format('projekt', '#', 'Tytuł strony', 'Data modyfikacji'))
+        for line in self.compareResult:
+            print("{0:>7} {1:>7} {2:<70} {3:<20}".format('A',str(line[0]),str(line[1]),str(line[2])))
+            print("{0:>7} {1:>7} {2:<70} {3:<20}".format('B',str(line[3]),str(line[4]),str(line[5])))
+            print("----------------------------------------------------------------------------------------------------------")
+      
     def printDiff(self):
         #print("Project A: {0}".format(self.projectAreader.projectpath))
         #print("Project B: {0}\n".format(self.projectBreader.projectpath))
