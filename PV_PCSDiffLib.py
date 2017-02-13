@@ -5,10 +5,39 @@ class ProjectReader:
     def __init__(self, projectpath):
         self.projectpath = projectpath
         self.pages_list = []
+        
+    def readFile(self):
+        file = open(self.projectpath, 'r', errors='replace')
+        properText = False
+        isCompressed = False
+        
+        filelines = file.readlines()
+        
+        if filelines[0][3:17] == ".PCsCADProject":
+            properText = True
+            print("Poprawny projekt bez kompresji")
+            return filelines
+        else:
+            properText = False
+            if filelines[0][0:2] == "PK":
+                isCompressed = True
+            else:
+                raise Exception("Not valid PCSchematic project")
+        
+        if isCompressed == True:
+        # rozpakuj do tymczasowego pliku i odczytaj ten tymczasowy
+        raise Exception("Compressed project file... to implement...")
+        
+        file.close()
+    
+    
     def getPagesListFromFile(self):
         import re
         try:
             # errors='replace' po to by ignorowac znaki ktore nie sa ascii. A w niektórych projektach takie występują
+            
+            # Tu uzyj readFile z rozpoznawaniem formatu
+            
             file = open(self.projectpath, 'r', errors='replace')
             file_lines = file.readlines()
         except:
