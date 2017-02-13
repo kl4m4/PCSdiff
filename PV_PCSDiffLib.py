@@ -1,5 +1,5 @@
 import sqlite3
-#import terminaltables
+import zipfile
 
 class ProjectReader:
     def __init__(self, projectpath):
@@ -7,42 +7,32 @@ class ProjectReader:
         self.pages_list = []
         
     def readFile(self):
-        file = open(self.projectpath, 'r', errors='replace')
-        properText = False
-        isCompressed = False
+        # Check if project file is a compressed file:
+        if zipfile.is_zipfile(self.projectpath) == True:
+            project_zip = zipfile.ZipFile(self.projectpath, mode = "r")
+            filelines = project_zip.open(project_zip.namelist()[0], mode = "r").readlines()
+            project_zip.close()
+            for lineindex in range(0, len(filelines)-1):
+                # Getting rid of some odd character bytes
+                filelines[lineindex] = filelines[lineindex].decode(encoding = 'utf-8-sig', errors = 'ignore')
+
+        else:
+            file = open(self.projectpath, 'r', encoding = 'utf-8-sig', errors='replace')
+            filelines = file.readlines()
+            file.close()
         
-        filelines = file.readlines()
-        
-        if filelines[0][3:17] == ".PCsCADProject":
-            properText = True
-            print("Poprawny projekt bez kompresji")
+        if filelines[0][0:14] == ".PCsCADProject":
+            # Its ok, we got proper PCSchematic file
             return filelines
         else:
-            properText = False
-            if filelines[0][0:2] == "PK":
-                isCompressed = True
-            else:
-                raise Exception("Not valid PCSchematic project")
+            raise Exception("Not valid PCSchematic project")
         
-        if isCompressed == True:
-        # rozpakuj do tymczasowego pliku i odczytaj ten tymczasowy
-        raise Exception("Compressed project file... to implement...")
-        
-        file.close()
-    
-    
     def getPagesListFromFile(self):
         import re
         try:
-            # errors='replace' po to by ignorowac znaki ktore nie sa ascii. A w niektórych projektach takie występują
-            
-            # Tu uzyj readFile z rozpoznawaniem formatu
-            
-            file = open(self.projectpath, 'r', errors='replace')
-            file_lines = file.readlines()
+            file_lines = self.readFile()
         except:
-            #print("Nie mogę otworzyć pliku {0}".format(filepath))
-            raise
+            raise Exception("Cannot read project file: {0}".format(self.projectpath))
             return
         
         
@@ -71,10 +61,10 @@ class ProjectReader:
                         page_title = page_title[1:-1]
                     self.pages_list.append([page_number_txt, page_title, page_date_string])  
                 except:
-                    print("Problem z parsowaniem. Linia nr {0}".format(lines_index))
+                    print("Parse error, line #{0}".format(lines_index))
                     
             lines_index += 1
-        file.close()
+        
         
 class ProjectComparator:
     def __init__(self, temp_db_file):
